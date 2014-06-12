@@ -22,7 +22,7 @@ typedef struct st_plugin_vio
 struct st_mysql_client_plugin_AUTHENTICATION
 {
   int type; unsigned int interface_version; const char *name; const char *author; const char *desc; unsigned int version[3]; const char *license; void *mysql_api; int (*init)(char *, size_t, int, va_list); int (*deinit)(); int (*options)(const char *option, const void *);
-  int (*authenticate_user)(MYSQL_PLUGIN_VIO *vio, struct st_mysql *mysql);
+  int (*authenticate_user)(struct MYSQL_PLUGIN_VIO *vio, struct st_mysql *mysql);
 };
 struct st_mysql_client_plugin *
 mysql_load_plugin(struct st_mysql *mysql, const char *name, int type,
