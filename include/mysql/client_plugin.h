@@ -105,7 +105,7 @@ struct st_mysql;
 struct st_mysql_client_plugin_AUTHENTICATION
 {
   MYSQL_CLIENT_PLUGIN_HEADER
-  int (*authenticate_user)(struct MYSQL_PLUGIN_VIO *vio, struct st_mysql *mysql);
+  int (*authenticate_user)(MYSQL_PLUGIN_VIO *vio, struct st_mysql *mysql);
 };
 
 /******** using plugins ************/
