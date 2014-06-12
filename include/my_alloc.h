@@ -25,6 +25,7 @@
 
 /* PSI_memory_key */
 #include <mysql/psi/psi_memory.h>
+typedef unsigned int PSI_memory_key;
 
 #ifdef __cplusplus
 extern "C" {
