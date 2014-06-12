@@ -21,6 +21,10 @@
 #define USE_MALLOC_WRAPPER
 #endif
 
+void *(*my_malloc_fn)(size_t sz) = malloc;
+void *(*my_realloc_fn)(void *ptr, size_t sz) = realloc;
+void (*my_free_fn)(void *ptr) = free;
+
 #ifdef USE_MALLOC_WRAPPER
 struct my_memory_header
 {
@@ -154,7 +158,7 @@ void *my_raw_malloc(size_t size, myf my_flags)
   if (!size)
     size=1;
 
-  point= malloc(size);
+  point= my_malloc_fn(size);
   DBUG_EXECUTE_IF("simulate_out_of_memory",
                   {
                     free(point);
@@ -212,7 +216,7 @@ void *my_raw_realloc(void *oldpoint, size_t size, myf my_flags)
                   goto end;);
   if (!oldpoint && (my_flags & MY_ALLOW_ZERO_PTR))
     DBUG_RETURN(my_raw_malloc(size, my_flags));
-  point= realloc(oldpoint, size);
+  point= my_realloc_fn(oldpoint, size);
 #ifndef DBUG_OFF
 end:
 #endif
@@ -244,7 +248,7 @@ void my_raw_free(void *ptr)
 {
   DBUG_ENTER("my_free");
   DBUG_PRINT("my",("ptr: %p", ptr));
-  free(ptr);
+  my_free_fn(ptr);
   DBUG_VOID_RETURN;
 }
 
