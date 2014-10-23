@@ -21,6 +21,7 @@
 */
 
 #include "vio_priv.h"
+#include <valgrind/memcheck.h">
 
 #ifdef HAVE_OPENSSL
 
@@ -185,8 +186,10 @@ size_t vio_ssl_read(Vio *vio, uchar *buf, size_t size)
 
     ret= SSL_read(ssl, buf, size);
 
-    if (ret >= 0)
+    if (ret >= 0) {
+      VALGRIND_MAKE_MEM_DEFINED(buf, ret);
       break;
+    }
 
     /* Process the SSL I/O error. */
     if (!ssl_should_retry(vio, ret, &event, &ssl_errno_not_used))
