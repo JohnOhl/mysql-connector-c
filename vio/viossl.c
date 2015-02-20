@@ -21,7 +21,9 @@
 */
 
 #include "vio_priv.h"
-#include <valgrind/memcheck.h>
+#ifndef __APPLE__
+	#include <valgrind/memcheck.h>
+#endif
 
 #ifdef HAVE_OPENSSL
 
@@ -187,7 +189,9 @@ size_t vio_ssl_read(Vio *vio, uchar *buf, size_t size)
     ret= SSL_read(ssl, buf, size);
 
     if (ret >= 0) {
-      VALGRIND_MAKE_MEM_DEFINED(buf, ret);
+      #ifndef __APPLE__
+        VALGRIND_MAKE_MEM_DEFINED(buf, ret);
+      #endif
       break;
     }
 
