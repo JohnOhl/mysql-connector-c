@@ -21,6 +21,11 @@
 #define USE_MALLOC_WRAPPER
 #endif
 
+void *(*my_malloc_fn)(size_t sz) = malloc;
+void *(*my_calloc_fn)(size_t num, size_t sz) = calloc;
+void *(*my_realloc_fn)(void *ptr, size_t sz) = realloc;
+void (*my_free_fn)(void *ptr) = free;
+
 static void *my_raw_malloc(size_t size, myf my_flags);
 static void my_raw_free(void *ptr);
 
@@ -166,9 +171,9 @@ static void *my_raw_malloc(size_t size, myf my_flags)
     point= _malloc_dbg(size, _CLIENT_BLOCK, __FILE__, __LINE__);
 #else
   if (my_flags & MY_ZEROFILL)
-    point= calloc(size, 1);
+    point= my_calloc_fn(size, 1);
   else
-    point= malloc(size);
+    point= my_malloc_fn(size);
 #endif
 
   DBUG_EXECUTE_IF("simulate_out_of_memory",
@@ -230,7 +235,7 @@ static void *my_raw_realloc(void *oldpoint, size_t size, myf my_flags)
 #if defined(MY_MSCRT_DEBUG)
   point= _realloc_dbg(oldpoint, size, _CLIENT_BLOCK, __FILE__, __LINE__);
 #else
-  point= realloc(oldpoint, size);
+  point= my_realloc_fn(oldpoint, size);
 #endif
 #ifndef DBUG_OFF
 end:
@@ -267,7 +272,7 @@ static void my_raw_free(void *ptr)
 #if defined(MY_MSCRT_DEBUG)
   _free_dbg(ptr, _CLIENT_BLOCK);
 #else
-  free(ptr);
+  my_free(ptr);
 #endif
   DBUG_VOID_RETURN;
 }
