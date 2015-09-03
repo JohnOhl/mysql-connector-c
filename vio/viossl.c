@@ -21,9 +21,6 @@
 */
 
 #include "vio_priv.h"
-#ifndef __APPLE__
-	#include <valgrind/memcheck.h>
-#endif
 
 #ifdef HAVE_OPENSSL
 
@@ -186,14 +183,10 @@ size_t vio_ssl_read(Vio *vio, uchar *buf, size_t size)
     DBUG_ASSERT(ERR_peek_error() == 0);
 #endif
 
-    ret= SSL_read(ssl, buf, size);
+    ret= SSL_read(ssl, buf, (int)size);
 
-    if (ret >= 0) {
-      #ifndef __APPLE__
-        VALGRIND_MAKE_MEM_DEFINED(buf, ret);
-      #endif
+    if (ret >= 0)
       break;
-    }
 
     /* Process the SSL I/O error. */
     if (!ssl_should_retry(vio, ret, &event, &ssl_errno_not_used))
@@ -229,7 +222,7 @@ size_t vio_ssl_write(Vio *vio, const uchar *buf, size_t size)
     DBUG_ASSERT(ERR_peek_error() == 0);
 #endif
 
-    ret= SSL_write(ssl, buf, size);
+    ret= SSL_write(ssl, buf, (int)size);
 
     if (ret >= 0)
       break;
@@ -251,14 +244,14 @@ size_t vio_ssl_write(Vio *vio, const uchar *buf, size_t size)
 /* Emulate a blocking recv() call with vio_read(). */
 static long yassl_recv(void *ptr, void *buf, size_t len)
 {
-  return vio_read(ptr, buf, len);
+  return (long)vio_read(ptr, buf, len);
 }
 
 
 /* Emulate a blocking send() call with vio_write(). */
 static long yassl_send(void *ptr, const void *buf, size_t len)
 {
-  return vio_write(ptr, buf, len);
+  return (long)vio_write(ptr, buf, len);
 }
 
 #endif
